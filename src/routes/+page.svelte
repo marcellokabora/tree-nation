@@ -4,6 +4,7 @@
   import { goto } from "$app/navigation";
   import type { PageData } from "./$types.js";
   import { barChart, type BarChartParams } from "$lib/actions/chart.js";
+  import logo from "$lib/assets/logo.png";
 
   let { data }: { data: PageData } = $props();
 
@@ -146,7 +147,10 @@
     </div>
   {/if}
   <header class="text-center mb-8">
-    <h1 class="text-3xl m-0">🌳 Tree Nation Dashboard</h1>
+    <h1 class="text-3xl m-0 flex items-center justify-center gap-3">
+      <img src={logo} alt="Tree Nation logo" class="h-10 w-10" />
+      Tree Nation Dashboard
+    </h1>
     <p class="text-brand-muted mt-1 m-0">Shop visits → planted trees</p>
   </header>
 
