@@ -1,0 +1,130 @@
+openapi: 3.1.0
+info:
+  title: Tree Nation API
+  version: 1.0.0
+  description: Web service that tracks shop visits and plants trees for customers.
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/visits:
+    post:
+      summary: Record a customer visit
+      description: |
+        Called by the physical device when a customer enters the shop.
+        The customer is auto-created on first visit.
+        Every X visits (configurable), one tree is planted for the customer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId]
+              properties:
+                customerId:
+                  type: string
+                  minLength: 1
+                  example: card-12345
+      responses:
+        "200":
+          description: Visit recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerStats"
+        "400":
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/customers/{id}:
+    get:
+      summary: Get customer statistics
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: card-12345
+      responses:
+        "200":
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerStats"
+        "404":
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/stats/visits:
+    get:
+      summary: Get visit statistics across all granularities
+      responses:
+        "200":
+          description: Hourly visit counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    hour:
+                      type: string
+                      format: date-time
+                      example: "2026-06-02T10:00:00Z"
+                    count:
+                      type: integer
+                      example: 14
+
+  /api/health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  schemas:
+    CustomerStats:
+      type: object
+      properties:
+        customerId:
+          type: string
+          example: card-12345
+        totalVisits:
+          type: integer
+          example: 10
+        treesPlanted:
+          type: integer
+          example: 1
+        lastConnection:
+          type: string
+          format: date-time
+          example: "2026-06-02T10:00:00.000Z"
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: customerId is required

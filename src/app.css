@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-bg: var(--color-green-50);
+  --color-brand-surface: var(--color-white);
+  --color-brand-border: var(--color-green-200);
+  --color-brand-border-strong: var(--color-green-300);
+  --color-brand-accent: var(--color-green-100);
+  --color-brand-primary: var(--color-green-600);
+  --color-brand-muted: var(--color-green-600);
+  --color-brand-subtle: var(--color-green-500);
+  --color-brand-label: var(--color-green-800);
+  --color-brand-text: var(--color-green-900);
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-brand-text font-sans;
+  }
+}
