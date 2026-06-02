@@ -29,7 +29,6 @@ graph TD
 ### Local development
 
 ```bash
-cd tree-nation
 npm install
 npm run dev
 ```
