@@ -145,6 +145,20 @@ Semantic color tokens are defined in `src/app.css` via `@theme`. Always use thes
 <p class="text-green-600">...</p>
 ```
 
+### Sizing — prefer canonical scale classes over arbitrary values
+
+Tailwind v4 generates a canonical spacing/sizing scale. Use those classes instead of arbitrary `[value]` syntax. VS Code will warn via `suggestCanonicalClasses` when an arbitrary value has a canonical equivalent.
+
+```html
+<!-- ✅ Canonical scale -->
+<main class="max-w-215">...</main>
+<div class="min-w-35">...</div>
+
+<!-- ❌ Arbitrary values (triggers suggestCanonicalClasses warning) -->
+<main class="max-w-[860px]">...</main>
+<div class="min-w-[140px]">...</div>
+```
+
 ## What to Avoid
 
 - `any` type — use proper types or generics.

@@ -52,6 +52,7 @@
     visitsPerHour.reduce((s, h) => s + h.count, 0),
   );
   let lastRefreshed = $state(new Date().toLocaleTimeString());
+  // svelte-ignore state_referenced_locally
   let fetchError = $state<string | null>(data.loadError);
 
   let activeBuckets = $derived(
@@ -138,7 +139,7 @@
   <title>Tree Nation Dashboard</title>
 </svelte:head>
 
-<main class="max-w-[860px] mx-auto px-4 py-8">
+<main class="max-w-215 mx-auto px-4 py-8">
   {#if fetchError}
     <div
       class="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -156,7 +157,7 @@
 
   <section class="flex flex-wrap gap-4 mb-8 justify-center">
     <div
-      class="bg-brand-surface border border-brand-border rounded-xl px-10 py-6 text-center flex-1 min-w-[140px] shadow-sm"
+      class="bg-brand-surface border border-brand-border rounded-xl px-10 py-6 text-center flex-1 min-w-35 shadow-sm"
     >
       <span class="block text-5xl font-bold leading-none"
         >{totalVisitsToday}</span
@@ -166,7 +167,7 @@
       >
     </div>
     <div
-      class="bg-brand-accent border border-brand-border-strong rounded-xl px-10 py-6 text-center flex-1 min-w-[140px] shadow-sm"
+      class="bg-brand-accent border border-brand-border-strong rounded-xl px-10 py-6 text-center flex-1 min-w-35 shadow-sm"
     >
       <span class="block text-5xl font-bold leading-none">{totalTrees}</span>
       <span class="block text-sm text-brand-label mt-1.5">Trees Planted</span>
