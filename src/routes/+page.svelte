@@ -148,7 +148,9 @@
     </div>
   {/if}
   <header class="text-center mb-8">
-    <h1 class="text-3xl m-0 flex items-center justify-center gap-3">
+    <h1
+      class="text-3xl m-0 flex flex-col sm:flex-row items-center justify-center gap-3"
+    >
       <img src={logo} alt="Tree Nation logo" class="h-10 w-10" />
       Tree Nation Dashboard
     </h1>
