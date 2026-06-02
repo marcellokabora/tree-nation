@@ -90,7 +90,18 @@ curl -X POST http://localhost:3000/api/visits \
 curl http://localhost:3000/api/customers/card-12345
 ```
 
-### Get visits per hour (last 24h)
+**Response:**
+
+```json
+{
+  "customerId": "card-12345",
+  "totalVisits": 10,
+  "treesPlanted": 1,
+  "lastConnection": "2026-06-02T10:00:00.000Z"
+}
+```
+
+### Get visit stats (all granularities)
 
 ```bash
 curl http://localhost:3000/api/stats/visits
@@ -99,10 +110,17 @@ curl http://localhost:3000/api/stats/visits
 **Response:**
 
 ```json
-[
-  { "hour": "2026-06-02T09:00:00Z", "count": 14 },
-  { "hour": "2026-06-02T10:00:00Z", "count": 7 }
-]
+{
+  "visitsPerMinute": [{ "time": "2026-06-02T10:00:00Z", "count": 3 }],
+  "visitsPerHour": [
+    { "time": "2026-06-02T09:00:00Z", "count": 14 },
+    { "time": "2026-06-02T10:00:00Z", "count": 7 }
+  ],
+  "visitsPerDay": [{ "time": "2026-06-02T00:00:00Z", "count": 21 }],
+  "visitsPerWeek": [{ "time": "2026-06-01T00:00:00Z", "count": 21 }],
+  "visitsPerMonth": [{ "time": "2026-06-01T00:00:00Z", "count": 21 }],
+  "totalTrees": 2
+}
 ```
 
 ### Health check
