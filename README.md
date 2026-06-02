@@ -1,4 +1,4 @@
-# Tree Nation � X Visits = 1 Tree
+﻿# 🌳 Tree Nation — Shop Visit Tracker
 
 A web service that tracks customer shop visits and plants a tree every **X visits**.  
 Built with **SvelteKit**, **Tailwind CSS v4**, **SQLite (Drizzle ORM)**, and a **REST API**.
@@ -167,7 +167,7 @@ npm run db:generate
 npm run db:migrate
 ```
 
-Migration files are stored in `src/lib/db/migrations/`. You only need to run these when changing the **database schema** — adding a new endpoint that uses existing tables does not require a migration.
+Migration files are stored in `src/lib/db/migrations/`. You only need to run these when changing the **database schema** â€” adding a new endpoint that uses existing tables does not require a migration.
 
 ---
 
@@ -181,10 +181,10 @@ npm run test
 
 ## Assumptions
 
-- **Customer identity** is provided by the device. The device sends a `customerId` (e.g. a loyalty card number or NFC tag ID) with every visit event. The service auto-creates a customer record on first visit � no registration step.
+- **Customer identity** is provided by the device. The device sends a `customerId` (e.g. a loyalty card number or NFC tag ID) with every visit event. The service auto-creates a customer record on first visit — no registration step.
 - **Visit timestamps** are recorded in UTC ISO 8601 format by the server. The device does not need to send a timestamp.
 - **X is configurable** via the `X_VISITS_PER_TREE` environment variable (default: 10). Changing this value after data exists will affect when the next tree milestone is reached but does not retroactively change history.
-- The **dashboard is unauthenticated** � it is an open admin view. No login is required.
+- The **dashboard is unauthenticated** ï¿½ it is an open admin view. No login is required.
 - The **persistence layer** is SQLite stored in `./data/db.sqlite`. For higher traffic a drop-in swap to PostgreSQL via Drizzle would require minimal code changes.
 
 ---
@@ -194,17 +194,18 @@ npm run test
 | Decision   | Choice                 | Rationale                                                                                         |
 | ---------- | ---------------------- | ------------------------------------------------------------------------------------------------- |
 | Framework  | SvelteKit              | Handles API routes and frontend in one project; TypeScript-first; minimal boilerplate             |
-| API style  | REST                   | Spec asks to "show API design"; clear for device integration and reviewers                        |
+| API        | REST                   | Spec asks to "show API design"; clear for device integration and reviewers                        |
 | Database   | SQLite + Drizzle ORM   | Zero setup, file-based, Docker-friendly with a volume mount; Drizzle is lightweight and SQL-close |
 | Adapter    | @sveltejs/adapter-node | Needed to run as a real HTTP server in production/Docker                                          |
 | Validation | Zod                    | Type-safe boundary validation at API entry points                                                 |
 | Charts     | Chart.js               | Lightweight, no framework dependency, dynamic import keeps it off the SSR bundle                  |
+| Styling    | Tailwind               | Utility-first; semantic `brand-*` tokens via `@theme` keep palette changes in one place           |
 
 ---
 
 ## Potential Improvements
 
-- **Per-customer chart filter** — add a customer dropdown to filter the bar chart by individual customer, leveraging the existing `GET /api/customers/:id` endpoint.
-- **Pagination on customer endpoint** — add a `GET /api/customers` list endpoint with pagination for admin use.
-- **Authentication** — protect the dashboard and API with an API key or JWT for production use.
-- **PostgreSQL support** — swap SQLite for PostgreSQL via Drizzle with minimal code changes for higher-traffic deployments.
+- **Per-customer chart filter** â€” add a customer dropdown to filter the bar chart by individual customer, leveraging the existing `GET /api/customers/:id` endpoint.
+- **Pagination on customer endpoint** â€” add a `GET /api/customers` list endpoint with pagination for admin use.
+- **Authentication** â€” protect the dashboard and API with an API key or JWT for production use.
+- **PostgreSQL support** â€” swap SQLite for PostgreSQL via Drizzle with minimal code changes for higher-traffic deployments.
