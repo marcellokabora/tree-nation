@@ -2,13 +2,12 @@
   import { onMount, onDestroy } from "svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
-  import type { PageData } from "./$types.js";
   import { barChart, type BarChartParams } from "$lib/actions/chart.js";
   import logo from "$lib/assets/logo.png";
 
-  let { data }: { data: PageData } = $props();
-
   type Granularity = "minute" | "hour" | "day" | "week" | "month";
+  type VisitBucket = { time: string; count: number };
+
   const VALID_GRANULARITIES: readonly Granularity[] = [
     "minute",
     "hour",
@@ -31,29 +30,17 @@
     month: { title: "Visits per Month", window: "last 12 months" },
   };
 
-  let fresh = $state<{
-    visitsPerMinute: typeof data.visitsPerMinute;
-    visitsPerHour: typeof data.visitsPerHour;
-    visitsPerDay: typeof data.visitsPerDay;
-    visitsPerWeek: typeof data.visitsPerWeek;
-    visitsPerMonth: typeof data.visitsPerMonth;
-    totalTrees: number;
-  } | null>(null);
-
-  let visitsPerMinute = $derived(
-    fresh?.visitsPerMinute ?? data.visitsPerMinute,
-  );
-  let visitsPerHour = $derived(fresh?.visitsPerHour ?? data.visitsPerHour);
-  let visitsPerDay = $derived(fresh?.visitsPerDay ?? data.visitsPerDay);
-  let visitsPerWeek = $derived(fresh?.visitsPerWeek ?? data.visitsPerWeek);
-  let visitsPerMonth = $derived(fresh?.visitsPerMonth ?? data.visitsPerMonth);
-  let totalTrees = $derived(fresh?.totalTrees ?? data.totalTrees);
+  let visitsPerMinute = $state<VisitBucket[]>([]);
+  let visitsPerHour = $state<VisitBucket[]>([]);
+  let visitsPerDay = $state<VisitBucket[]>([]);
+  let visitsPerWeek = $state<VisitBucket[]>([]);
+  let visitsPerMonth = $state<VisitBucket[]>([]);
+  let totalTrees = $state(0);
   let totalVisitsToday = $derived(
     visitsPerHour.reduce((s, h) => s + h.count, 0),
   );
   let lastRefreshed = $state(new Date().toLocaleTimeString());
-  // svelte-ignore state_referenced_locally
-  let fetchError = $state<string | null>(data.loadError);
+  let fetchError = $state<string | null>(null);
 
   let activeBuckets = $derived(
     granularity === "minute"
@@ -78,14 +65,12 @@
         return;
       }
       const fetched = await res.json();
-      fresh = {
-        visitsPerMinute: fetched.visitsPerMinute,
-        visitsPerHour: fetched.visitsPerHour,
-        visitsPerDay: fetched.visitsPerDay,
-        visitsPerWeek: fetched.visitsPerWeek,
-        visitsPerMonth: fetched.visitsPerMonth,
-        totalTrees: fetched.totalTrees,
-      };
+      visitsPerMinute = fetched.visitsPerMinute;
+      visitsPerHour = fetched.visitsPerHour;
+      visitsPerDay = fetched.visitsPerDay;
+      visitsPerWeek = fetched.visitsPerWeek;
+      visitsPerMonth = fetched.visitsPerMonth;
+      totalTrees = fetched.totalTrees;
       fetchError = null;
       lastRefreshed = new Date().toLocaleTimeString();
     } catch {
@@ -127,6 +112,7 @@
   });
 
   onMount(() => {
+    refresh();
     refreshInterval = setInterval(refresh, 30_000);
   });
 
