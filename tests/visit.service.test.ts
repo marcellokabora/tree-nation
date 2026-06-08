@@ -55,7 +55,7 @@ function makeService(db: ReturnType<typeof createTestDb>, X: number) {
         return db.select().from(customers).where(eq(customers.id, customerId)).get();
     }
 
-    function getVisits(granularity: 'minute' | 'hour' | 'day' | 'week' | 'month' = 'hour') {
+    function getVisits(period: 'minute' | 'hour' | 'day' | 'week' | 'month' = 'hour') {
         const fmts: Record<string, string> = {
             minute: '%Y-%m-%dT%H:%M:00Z',
             hour: '%Y-%m-%dT%H:00:00Z',
@@ -70,10 +70,10 @@ function makeService(db: ReturnType<typeof createTestDb>, X: number) {
             week: '-84 days',
             month: '-12 months',
         };
-        const fmt = fmts[granularity];
-        const window = windows[granularity];
+        const fmt = fmts[period];
+        const window = windows[period];
         const timeExpr = () =>
-            granularity === 'week'
+            period === 'week'
                 ? sql<string>`strftime('%Y-%m-%d', ${visits.visitedAt}, '-6 days', 'weekday 1')`
                 : sql<string>`strftime(${fmt}, ${visits.visitedAt})`;
         return db
@@ -242,7 +242,7 @@ describe('getVisits', () => {
         expect(total).toBe(3);
     });
 
-    it('returns buckets with time strings for every granularity', () => {
+    it('returns buckets with time strings for every period', () => {
         service.recordVisit('alice');
         for (const g of ['minute', 'hour', 'day', 'week', 'month'] as const) {
             const buckets = service.getVisits(g);
@@ -253,15 +253,23 @@ describe('getVisits', () => {
     });
 
     it('groups visits into separate buckets when they fall in different hours', () => {
-        const base = new Date('2026-06-02T10:00:00Z');
-        vi.setSystemTime(base);
+        // Use times relative to real clock so SQLite's datetime('now') window includes them
+        const realNow = new Date();
+        const prevHourStart = new Date(realNow);
+        prevHourStart.setMinutes(0, 0, 0);
+        prevHourStart.setHours(prevHourStart.getHours() - 1);
+
+        const thisHourStart = new Date(realNow);
+        thisHourStart.setMinutes(0, 0, 0);
+
+        vi.setSystemTime(prevHourStart);
         service.recordVisit('alice');
 
-        vi.setSystemTime(new Date(base.getTime() + 60 * 60 * 1000)); // +1 hour
+        vi.setSystemTime(thisHourStart);
         service.recordVisit('alice');
-        vi.useRealTimers();
 
         const buckets = service.getVisits('hour');
         expect(buckets.length).toBe(2);
+        vi.useRealTimers();
     });
 });

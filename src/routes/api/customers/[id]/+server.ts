@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { getCustomer } from '$lib/services/visit.service.js';
+import { getCustomer } from '$lib/services/visit.service';
 import type { RequestHandler } from './$types.js';
 
 export const GET: RequestHandler = ({ params }) => {

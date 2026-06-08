@@ -5,24 +5,22 @@
   import { barChart, type BarChartParams } from "$lib/actions/chart.js";
   import logo from "$lib/assets/logo.png";
 
-  type Granularity = "minute" | "hour" | "day" | "week" | "month";
+  type Period = "minute" | "hour" | "day" | "week" | "month";
   type VisitBucket = { time: string; count: number };
 
-  const VALID_GRANULARITIES: readonly Granularity[] = [
+  const VALID_PERIODS: readonly Period[] = [
     "minute",
     "hour",
     "day",
     "week",
     "month",
   ];
-  let granularity = $derived.by(() => {
-    const g = $page.url.searchParams.get("granularity");
-    return (
-      VALID_GRANULARITIES.includes(g as Granularity) ? g : "hour"
-    ) as Granularity;
+  let period = $derived.by(() => {
+    const g = $page.url.searchParams.get("period");
+    return (VALID_PERIODS.includes(g as Period) ? g : "hour") as Period;
   });
 
-  const chartMeta: Record<Granularity, { title: string; window: string }> = {
+  const chartMeta: Record<Period, { title: string; window: string }> = {
     minute: { title: "Visits per Minute", window: "last 2h" },
     hour: { title: "Visits per Hour", window: "last 24h" },
     day: { title: "Visits per Day", window: "last 30 days" },
@@ -36,23 +34,22 @@
   let visitsPerWeek = $state<VisitBucket[]>([]);
   let visitsPerMonth = $state<VisitBucket[]>([]);
   let totalTrees = $state(0);
-  let totalVisitsToday = $derived(
-    visitsPerHour.reduce((s, h) => s + h.count, 0),
-  );
-  let lastRefreshed = $state(new Date().toLocaleTimeString());
-  let fetchError = $state<string | null>(null);
-
   let activeBuckets = $derived(
-    granularity === "minute"
+    period === "minute"
       ? visitsPerMinute
-      : granularity === "day"
+      : period === "day"
         ? visitsPerDay
-        : granularity === "week"
+        : period === "week"
           ? visitsPerWeek
-          : granularity === "month"
+          : period === "month"
             ? visitsPerMonth
             : visitsPerHour,
   );
+  let totalVisitsToday = $derived(
+    activeBuckets.reduce((s, h) => s + h.count, 0),
+  );
+  let lastRefreshed = $state(new Date().toLocaleTimeString());
+  let fetchError = $state<string | null>(null);
 
   let chartReady = $state(false);
   let refreshInterval: ReturnType<typeof setInterval>;
@@ -78,8 +75,8 @@
     }
   }
 
-  function setGranularity(g: Granularity) {
-    goto(`?granularity=${g}`, {
+  function setPeriod(g: Period) {
+    goto(`?period=${g}`, {
       replaceState: true,
       noScroll: true,
       keepFocus: true,
@@ -89,11 +86,11 @@
   let chartData = $derived<BarChartParams["data"]>({
     labels: activeBuckets.map((b) => {
       const d = new Date(b.time);
-      if (granularity === "minute" || granularity === "hour")
+      if (period === "minute" || period === "hour")
         return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      if (granularity === "day")
+      if (period === "day")
         return d.toLocaleDateString([], { month: "short", day: "numeric" });
-      if (granularity === "week")
+      if (period === "week")
         return (
           "W/o " + d.toLocaleDateString([], { month: "short", day: "numeric" })
         );
@@ -151,7 +148,7 @@
         >{totalVisitsToday}</span
       >
       <span class="block text-sm text-brand-label mt-1.5"
-        >Visits (last 24h)</span
+        >Visits ({chartMeta[period].window})</span
       >
     </div>
     <div
@@ -167,20 +164,18 @@
   >
     <div class="flex items-start justify-between gap-4 mb-4">
       <h2 class="m-0 text-lg">
-        {chartMeta[granularity].title}
+        {chartMeta[period].title}
         <small class="font-normal text-brand-muted max-sm:block"
-          >({chartMeta[granularity].window})</small
+          >({chartMeta[period].window})</small
         >
       </h2>
       <div>
         <!-- Mobile: dropdown -->
         <select
           class="sm:hidden border border-brand-border-strong rounded-md px-2 py-1 text-xs text-brand-label bg-brand-surface cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary"
-          value={granularity}
+          value={period}
           onchange={(e) =>
-            setGranularity(
-              (e.currentTarget as HTMLSelectElement).value as Granularity,
-            )}
+            setPeriod((e.currentTarget as HTMLSelectElement).value as Period)}
         >
           <option value="minute">Minute</option>
           <option value="hour">Hour</option>
@@ -191,39 +186,39 @@
         <!-- Desktop: button group -->
         <div class="hidden sm:flex gap-1">
           <button
-            class="border rounded-md px-3 py-1 cursor-pointer text-xs {granularity ===
+            class="border rounded-md px-3 py-1 cursor-pointer text-xs {period ===
             'minute'
               ? 'bg-brand-primary text-white border-brand-primary'
               : 'bg-transparent text-brand-label border-brand-border-strong hover:bg-brand-accent'}"
-            onclick={() => setGranularity("minute")}>Minute</button
+            onclick={() => setPeriod("minute")}>Minute</button
           >
           <button
-            class="border rounded-md px-3 py-1 cursor-pointer text-xs {granularity ===
+            class="border rounded-md px-3 py-1 cursor-pointer text-xs {period ===
             'hour'
               ? 'bg-brand-primary text-white border-brand-primary'
               : 'bg-transparent text-brand-label border-brand-border-strong hover:bg-brand-accent'}"
-            onclick={() => setGranularity("hour")}>Hour</button
+            onclick={() => setPeriod("hour")}>Hour</button
           >
           <button
-            class="border rounded-md px-3 py-1 cursor-pointer text-xs {granularity ===
+            class="border rounded-md px-3 py-1 cursor-pointer text-xs {period ===
             'day'
               ? 'bg-brand-primary text-white border-brand-primary'
               : 'bg-transparent text-brand-label border-brand-border-strong hover:bg-brand-accent'}"
-            onclick={() => setGranularity("day")}>Day</button
+            onclick={() => setPeriod("day")}>Day</button
           >
           <button
-            class="border rounded-md px-3 py-1 cursor-pointer text-xs {granularity ===
+            class="border rounded-md px-3 py-1 cursor-pointer text-xs {period ===
             'week'
               ? 'bg-brand-primary text-white border-brand-primary'
               : 'bg-transparent text-brand-label border-brand-border-strong hover:bg-brand-accent'}"
-            onclick={() => setGranularity("week")}>Week</button
+            onclick={() => setPeriod("week")}>Week</button
           >
           <button
-            class="border rounded-md px-3 py-1 cursor-pointer text-xs {granularity ===
+            class="border rounded-md px-3 py-1 cursor-pointer text-xs {period ===
             'month'
               ? 'bg-brand-primary text-white border-brand-primary'
               : 'bg-transparent text-brand-label border-brand-border-strong hover:bg-brand-accent'}"
-            onclick={() => setGranularity("month")}>Month</button
+            onclick={() => setPeriod("month")}>Month</button
           >
         </div>
       </div>

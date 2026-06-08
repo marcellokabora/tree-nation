@@ -5,6 +5,20 @@ Built with **SvelteKit**, **Tailwind CSS v4**, **SQLite (Drizzle ORM)**, and a *
 
 ---
 
+## Tech Stack
+
+| Layer      | Technology                    |
+| ---------- | ----------------------------- |
+| Framework  | SvelteKit (adapter-node)      |
+| Language   | TypeScript (strict mode)      |
+| Styling    | Tailwind CSS v4               |
+| Database   | SQLite + Drizzle ORM (libsql) |
+| Validation | Zod                           |
+| Testing    | Vitest                        |
+| Charts     | Chart.js                      |
+
+---
+
 ## Architecture
 
 ```mermaid

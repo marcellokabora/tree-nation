@@ -21,7 +21,7 @@ A SvelteKit application that tracks customer shop visits and plants trees on beh
 - Use the exported types from `$lib/services/visit.service.ts` wherever possible:
   - `Customer` — inferred from the `customers` Drizzle table
   - `VisitBucket` — `{ time: string; count: number }`
-  - `Granularity` — `'minute' | 'hour' | 'day' | 'week' | 'month'`
+  - `Period` — `'minute' | 'hour' | 'day' | 'week' | 'month'`
 
 ## Project Structure
 

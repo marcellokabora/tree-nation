@@ -5,7 +5,7 @@ import { customers, visits } from '../db/schema.js';
 
 export type Customer = typeof customers.$inferSelect;
 export type VisitBucket = { time: string; count: number };
-export type Granularity = 'minute' | 'hour' | 'day' | 'week' | 'month';
+export type Period = 'minute' | 'hour' | 'day' | 'week' | 'month';
 
 export function recordVisit(customerId: string): Customer {
     const now = new Date().toISOString();
@@ -44,25 +44,25 @@ export function getCustomer(customerId: string): Customer | undefined {
     return db.select().from(customers).where(eq(customers.id, customerId)).get();
 }
 
-export function getVisits(granularity: Granularity = 'hour'): VisitBucket[] {
-    const fmts: Record<Granularity, string> = {
+export function getVisits(period: Period = 'hour'): VisitBucket[] {
+    const fmts: Record<Period, string> = {
         minute: '%Y-%m-%dT%H:%M:00Z',
         hour: '%Y-%m-%dT%H:00:00Z',
         day: '%Y-%m-%d',
         week: '%Y-%m-%d',
         month: '%Y-%m-01',
     };
-    const windows: Record<Granularity, string> = {
+    const windows: Record<Period, string> = {
         minute: '-2 hours',
         hour: '-24 hours',
         day: '-30 days',
         week: '-84 days',
         month: '-12 months',
     };
-    const fmt = fmts[granularity];
-    const window = windows[granularity];
+    const fmt = fmts[period];
+    const window = windows[period];
     // Week: bucket by the Monday of each week
-    const timeExpr = () => granularity === 'week'
+    const timeExpr = () => period === 'week'
         ? sql<string>`strftime('%Y-%m-%d', ${visits.visitedAt}, '-6 days', 'weekday 1')`
         : sql<string>`strftime(${fmt}, ${visits.visitedAt})`;
     return db
