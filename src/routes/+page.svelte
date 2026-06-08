@@ -4,6 +4,9 @@
   import { goto } from "$app/navigation";
   import { barChart, type BarChartParams } from "$lib/actions/chart.js";
   import logo from "$lib/assets/logo.png";
+  import type { PageData } from "./$types.js";
+
+  let { data }: { data: PageData } = $props();
 
   type Period = "minute" | "hour" | "day" | "week" | "month";
   type VisitBucket = { time: string; count: number };
@@ -28,12 +31,12 @@
     month: { title: "Visits per Month", window: "last 12 months" },
   };
 
-  let visitsPerMinute = $state<VisitBucket[]>([]);
-  let visitsPerHour = $state<VisitBucket[]>([]);
-  let visitsPerDay = $state<VisitBucket[]>([]);
-  let visitsPerWeek = $state<VisitBucket[]>([]);
-  let visitsPerMonth = $state<VisitBucket[]>([]);
-  let totalTrees = $state(0);
+  let visitsPerMinute = $state<VisitBucket[]>(data.visitsPerMinute);
+  let visitsPerHour = $state<VisitBucket[]>(data.visitsPerHour);
+  let visitsPerDay = $state<VisitBucket[]>(data.visitsPerDay);
+  let visitsPerWeek = $state<VisitBucket[]>(data.visitsPerWeek);
+  let visitsPerMonth = $state<VisitBucket[]>(data.visitsPerMonth);
+  let totalTrees = $state(data.totalTrees);
   let activeBuckets = $derived(
     period === "minute"
       ? visitsPerMinute
