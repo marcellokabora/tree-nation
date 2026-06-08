@@ -33,7 +33,7 @@ graph TD
     API --> Service
     Service --> DB
     Browser -->|views| Frontend
-    Frontend -->|SSR + fetch| API
+    Browser -->|client-side fetch on mount| API
 ```
 
 ---
