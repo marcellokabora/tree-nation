@@ -1,4 +1,4 @@
-﻿# 🌳 Tree Nation — Shop Visit Tracker
+﻿# Shop Visit Tracker
 
 A web service that tracks customer shop visits and plants a tree every **X visits**.  
 Built with **SvelteKit**, **Tailwind CSS v4**, **SQLite (Drizzle ORM)**, and a **REST API**.
